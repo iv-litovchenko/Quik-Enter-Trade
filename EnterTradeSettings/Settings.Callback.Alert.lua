@@ -31,6 +31,35 @@ function MyAlertSar(indicator_ind, price_ind)
 	
 end;
 
-MyAlertSar("RTS_SAR", "RTS_PRICE");
-MyAlertSar("GAZR_SAR", "GAZR_PRICE");
-MyAlertSar("SBRF_SAR", "SBRF_PRICE");
+-- MyAlertSar("RTS_SAR", "RTS_PRICE");
+-- MyAlertSar("GAZR_SAR", "GAZR_PRICE");
+-- MyAlertSar("SBRF_SAR", "SBRF_PRICE");
+
+-- Функция для сообщение о цене
+function MyAlert(ind, price)
+	local indFunc = _QuikChartExistsByIndex(ind, 1);
+	if indFunc then
+		
+		local val_price = _QuikGetChartByIndex(ind).close;
+		local ind_comment = ind.."/"..tostring(price);
+		
+		if tonumber(val_price) > price then
+			_QuikUtilityRegAlert(ind_comment, "Цена > "..price); -- Рег. алерт в таблице окошка
+			_QuikUtilityRegLabel(ind_comment, "Цена > "..price); -- Добавляем метку на график
+		
+		elseif tonumber(val_price) < price then
+			_QuikUtilityRegAlert(ind_comment, "Цена < "..price); -- Рег. алерт в таблице окошка
+			_QuikUtilityRegLabel(ind_comment, "Цена < "..price); -- Добавляем метку на график
+		
+		else
+			_QuikUtilityRegAlert(ind_comment, "Цена = "..price); -- Рег. алерт в таблице окошка
+			_QuikUtilityRegLabel(ind_comment, "Цена = "..price); -- Добавляем метку на график	
+		end;
+		
+	end;
+	
+end; 
+
+MyAlert("P1-1", 12300);
+MyAlert("P1-1", 12250);
+MyAlert("P1-1", 12200);

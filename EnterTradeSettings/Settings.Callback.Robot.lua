@@ -8,18 +8,24 @@
 -- И почему-то всеравно дублируется открытие поз...
 
 -- Только покупки
+--[[
 ind = "SRM0";
 if _QuikGetTotalnetByIndex(ind) == 0 then
 	_QuikSendTransactionOpenLongByIndex(ind,1,60,3,"Robot")
 end;
+--]]
+
 
 -- Только продажи
+--[[
 ind = "VBM0";
 if _QuikGetTotalnetByIndex(ind) == 0 then
 	_QuikSendTransactionOpenShortByIndex(ind,5,30,3,"Robot");
 end;
+--]]
 
 -- Чередуем
+--[[
 ind = "GZM0";
 if _QuikGetTotalnetByIndex(ind) == 0 then
 	if CallbackPosition == 1 then
@@ -34,8 +40,10 @@ else
 		CallbackPosition = 1;
 	end;
 end;
+--]]
 
 -- Случайно (то лонг, то шорт)
+--[[
 ind = "RIM0";
 if _QuikGetTotalnetByIndex(ind) == 0 then
  	if CallbackPositionRand == 1 then
@@ -46,5 +54,6 @@ if _QuikGetTotalnetByIndex(ind) == 0 then
 else
  	CallbackPositionRand = math.random(0,1);
 end;
+--]]
 
 -- sleep(2000);

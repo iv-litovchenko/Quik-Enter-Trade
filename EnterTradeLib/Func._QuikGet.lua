@@ -318,7 +318,11 @@ end;
 
 -- QUIK Получить: маржа (общаяя) - в "%"
 function _QuikGetPercentMarginAll()
-	return ((_QuikGetRubMarginAll() / _QuikGetRubFreeDepo()) * 100);
+	if tonumber(_QuikGetRubMarginAll()) > 0 and tonumber(_QuikGetRubFreeDepo()) > 0 then
+		return ((_QuikGetRubMarginAll() / _QuikGetRubFreeDepo()) * 100);
+	else 
+		return 0;
+	end;
 end;
 
 -- QUIK Получить: процент изменения счета за день (по отношению к пред. дню)

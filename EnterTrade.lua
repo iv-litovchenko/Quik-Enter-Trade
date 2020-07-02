@@ -71,7 +71,7 @@ TRANS_SECNAME					= ""; -- Название ФЬЮЧЕРСА -- VTBR-6.20/SBRF-6.20|RTS-6.20
 
 -- Переменные системы
 IsRun = true; -- Флаг поддержания работы скрипта
-ScriptVersion = "1.0"; 
+ScriptVersion = "1.1"; 
 CheckLastNumOnTrade				= 0;
 CheckLastNumOnOrderAct			= 0;
 CheckLastNumOnOrderNotAct		= 0;

@@ -55,12 +55,21 @@ function _QuikUtilityRegLabel(name, val_comment, file_icon_name)
 			file_icon_name = "Placeholder";
 		end;
 
+		-- Если сочлененное название
+		local oneName = '';
+		if name:find("/") then
+			local nameSplit = _QuikUtilitySplit(name,"/");
+			oneName = nameSplit[1];
+		else
+			oneName = name;
+		end;
+		
 		-- Представляем дату в виде "ГГГГММДД"
 		-- Представляем время в виде "ЧЧММСС"
 		local date_pos = (tostring(os.date("%Y", os.time()))..add_zero(tostring(os.date("%m", os.time())))..add_zero(tostring(os.date("%d", os.time()))))
 		local time_pos = (add_zero(tostring(os.date("%H", os.time())))..add_zero(tostring(os.date("%M", os.time())))..add_zero(tostring(os.date("%S", os.time()))))
 		
-		local price = _QuikGetChartByIndex(name).close;
+		local price = _QuikGetChartByIndex(oneName).close;
 			  price = price+((price/100)*0.2);
 		
 		-- TEXT = "----------------=ТЕСТ=----------------",
@@ -68,14 +77,14 @@ function _QuikUtilityRegLabel(name, val_comment, file_icon_name)
 			TEXT = tostring(""),
 			DATE = tostring(date_pos), -- "20200526",
 			TIME = tostring(time_pos), -- "212020",
-			YVALUE = tonumber(price), -- tonumber(_QuikGetChartByIndex(name)),
+			YVALUE = tonumber(price), -- tonumber(_QuikGetChartByIndex(oneName)),
 			R = 200,
 			G = 200,
 			B = 200,
 			HINT = tostring(val_comment),
 			IMAGE_PATH = tostring(getScriptPath().."\\\\EnterTradeLib\\\\"..file_icon_name..".jpg")
 		};
-		label_id = AddLabel(name, label_params);
+		label_id = AddLabel(oneName, label_params);
 		
 		return 1;
 	end;
