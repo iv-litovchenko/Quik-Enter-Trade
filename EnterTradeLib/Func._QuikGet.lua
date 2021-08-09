@@ -170,6 +170,74 @@ function _QuikGetParamExByIndex(code, param)
 	end;
 end;
 
+
+-- QUIK ѕолучить: название инструмента из настроек + добавить U1 (код мем€ца и года)
+-- ! - непрерывный, только US (CL! - Crude Oil)
+-- 1! - ближайший (NQ1! - E-mini Nasdaq 100)
+-- 2! - следующий (ES2! - E-mini S&P 500)
+
+--1)
+-- F - €нварь (CLF3)
+-- G - февраль (GCG3)
+-- H - март (NQH3)		
+
+--2)
+-- J - апрель
+-- K - май
+-- M - июнь
+
+--3)
+-- N - июль
+-- Q - август
+-- U - сент€брь
+
+--4)
+-- V - окт€брь
+-- X - но€брь
+-- Z - декабрь
+
+function _QuikGetNameByListTickets(code, deadline)
+	local year = tonumber(os.date("%Y", os.time()));
+	local day = tonumber(os.date("%d", os.time()));
+	local month = tonumber(os.date("%m", os.time()));
+	local monthCode = '';
+	year = string.sub(year,4);
+	
+	if deadline == 1 then
+		if month == 12 then monthCode='F'; end;
+		if month == 1 then monthCode='G'; end;
+		if month == 2 then monthCode='H'; end;
+		if month == 3 then monthCode='J'; end;
+		if month == 4 then monthCode='K'; end;
+		if month == 5 then monthCode='M'; end;
+		if month == 6 then monthCode='N'; end;
+		if month == 7 then monthCode='Q'; end;
+		if month == 8 then monthCode='U'; end;
+		if month == 9 then monthCode='V'; end;
+		if month == 10 then monthCode='X'; end;
+		if month == 11 then monthCode='Z'; end;
+	else
+		if month == 12 and day > 16 then monthCode='H'; end;
+		if month == 2 then monthCode='H'; end;
+		if month == 3 and day < 16 then monthCode='H'; end;
+		
+		if month == 3 and day > 16 then monthCode='M'; end;
+		if month == 5 then monthCode='M'; end;
+		if month == 6 and day < 16 then monthCode='M'; end;
+		
+		if month == 6 and day > 16 then monthCode='U'; end;
+		if month == 8 then monthCode='U'; end;
+		if month == 9 and day < 16 then monthCode='U'; end;
+		
+		if month == 9 and day > 16 then monthCode='Z'; end;
+		if month == 11 then monthCode='Z'; end;
+		if month == 12 and day < 16 then monthCode='Z'; end;
+	end;
+	
+	-- message("code:"..code..":"..monthCode .. "::" ..year);
+	return code..monthCode..year;
+end;
+
 -- QUIK ѕолучить: название инструмента
 -- „ерез "_QuikGetParamExByIndex" не получаетс€
 function _QuikGetShortNameByIndex(code)

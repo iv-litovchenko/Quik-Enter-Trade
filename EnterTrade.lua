@@ -71,7 +71,7 @@ TRANS_SECNAME					= ""; -- Название ФЬЮЧЕРСА -- VTBR-6.20/SBRF-6.20|RTS-6.20
 
 -- Переменные системы
 IsRun = true; -- Флаг поддержания работы скрипта
-ScriptVersion = "1.1"; 
+ScriptVersion 					= "1.3"; 
 CheckLastNumOnTrade				= 0;
 CheckLastNumOnOrderAct			= 0;
 CheckLastNumOnOrderNotAct		= 0;
@@ -131,7 +131,7 @@ function OnInit()
 	
 	--else
 		-- Устанавливаем название инструмента
-		TRANS_SECCODE = FILE_SETTINGS_LIST_TICKETS[VAL_TIKET][1];
+		TRANS_SECCODE = _QuikGetNameByListTickets(FILE_SETTINGS_LIST_TICKETS[VAL_TIKET][1],FILE_SETTINGS_LIST_TICKETS[VAL_TIKET][3]);
 		TRANS_SECNAME = _QuikGetShortNameByIndex(TRANS_SECCODE);
 		VAL_SL = _QuikUtilityStrRound2(FILE_SETTINGS_LIST_TICKETS[VAL_TIKET][2]);
 		
@@ -473,20 +473,20 @@ function OnOrder(order)
 	-- Транзакция не обработана
 	if TRANS_LIST[tonumber(trans_id)] == "ZAREGISTRIROVANO.NEW_ORDER" then
 	
-		if CheckLastNumOnOrderAct < order_num then
-			CheckLastNumOnOrderAct = order_num;  -- Запомним номер последнего
+		if CheckLastNumOnOrderAct ~= trans_id then
+			CheckLastNumOnOrderAct = trans_id;  -- Запомним номер последнего
 			_QuikUtilityLogWrite("report", "System", {"-", sec_code, "Depo", "", "", "", _QuikUtilityStrRound2(_QuikGetRubPrevDepo()), _QuikUtilityStrRound2(_QuikGetRubDepo())});
 		end;
 		
 		if not bit.test(flags,0) then -- бит 0 (0x1) - Заявка активна, иначе не активна
-		
+			
 			-- Увеличиваем счетчик (даже если не весь объем сделки выполнился)
 			-- _QuikUtilityLogCounterGetUp("order"); -- Увеличиваем число сделок
 				
 			-- Функция OnTrade() может высываться несколько раз...
 			-- if balance == 0 then -- Остаток
-			if CheckLastNumOnOrderNotAct < order_num then
-				CheckLastNumOnOrderNotAct = order_num;  -- Запомним номер последнего
+			if CheckLastNumOnOrderNotAct ~= trans_id then
+				CheckLastNumOnOrderNotAct = trans_id;  -- Запомним номер последнего
 				
 				-- Если произошло открытие позиции (лонг)
 				-- Если произошло открытие позиции (шорт)
@@ -501,6 +501,8 @@ function OnOrder(order)
 				-- Сделка выполнена установлен!
 				-- message("Ya OnOrder()!");
 				TRANS_LIST[tonumber(trans_id)] = "ISPOLNENO.NEW_ORDER"; -- транзакция обработана 
+				
+				-- message("!!!");
 					
 			-- end;
 			end;
@@ -521,7 +523,7 @@ end;
 -- (Таблица сделок). Функция вызывается терминалом QUIK при получении сделки
 function OnTrade(trade)
 	
-	local trade_num 		= trade.trade_num;
+	local trade_num 		= string.format("%f",trade.trade_num);
 	local trans_id 			= trade.trans_id;
 	local flags 			= trade.flags;
 	local comment 			= trade.brokerref;
@@ -537,8 +539,9 @@ function OnTrade(trade)
 	local arg_5 = nil;
 	
 	-- Функция OnTrade() может высываться несколько раз...
-	if CheckLastNumOnTrade < trade_num then
-	CheckLastNumOnTrade = trade_num;  -- Запомним номер последнего
+	if CheckLastNumOnTrade ~= trans_id then
+	CheckLastNumOnTrade = trans_id;  -- Запомним номер последнего
+	
 		
 		-- Если произошло открытие позиции (лонг/шорт)
 		if comment:find("LO/") or comment:find("SO/") then
@@ -562,23 +565,23 @@ function OnTrade(trade)
 			local trade_sl_k_tp = commentSplit[3];
 			
 			-- Записываем лог
-			_QuikUtilityLogWrite("report", "Trade", {"#"..trade_num, sec_code, comment, price, tostring(arg_1)..qty, _QuikGetRubPricePointsByIndex(sec_code,1), _QuikUtilityStrRound2(_QuikGetRubPrevDepo()), _QuikUtilityStrRound2(_QuikGetRubDepo())});
+			_QuikUtilityLogWrite("report", "Trade", {"#"..trans_id, sec_code, comment, price, tostring(arg_1)..qty, _QuikGetRubPricePointsByIndex(sec_code,1), _QuikUtilityStrRound2(_QuikGetRubPrevDepo()), _QuikUtilityStrRound2(_QuikGetRubDepo())});
 			
 			-- Выставляем стопы
 			-- LINE_STOP_ORDERS				= {}; -- Очередь выставления стоп-ордеров
 			-- LINE_STOP_ORDERS_COUNTER		= LINE_STOP_ORDERS_COUNTER+1;
 			for i = 1, qty do
-				-- NEW_STOP_ORDER(sec_code, "S", price, qty, "LC/Ord", trade_num, trade_sl, trade_sl_k_tp);
-				-- trade_num - обрезаем первые 3 символа
-				_QuikUtilityLogWrite("report", "System", {"#"..agr_id..string.sub(trade_num, 5)..i, sec_code, "NewStopOrder (1)"}); -- , arg_2, trade_sl, trade_sl_k_tp
-				NEW_STOP_ORDER(sec_code, arg_3, price, 1, arg_4, agr_id..string.sub(trade_num, 5)..i, trade_sl, trade_sl_k_tp);
+				-- NEW_STOP_ORDER(sec_code, "S", price, qty, "LC/Ord", trans_id, trade_sl, trade_sl_k_tp);
+				-- trans_id - обрезаем первые 3 символа
+				_QuikUtilityLogWrite("report", "System", {"#"..agr_id..math.ceil(os.date("%S%M%H%d")/100)..i, sec_code, "NewStopOrder (1)"}); -- , arg_2, trade_sl, trade_sl_k_tp
+				NEW_STOP_ORDER(sec_code, arg_3, price, 1, arg_4, agr_id..math.ceil(os.date("%S%M%H%d")/100)..i, trade_sl, trade_sl_k_tp);
 			end;
 			
 		end;
 		
 		-- Если произошло закрытие позиции в ручную "Часть"
 		if comment:find("LC/Part-") or comment:find("SC/Part-") then
-		
+			
 			if comment:find("LC/Part-") then
 				arg_1 = "-";
 			else
@@ -586,7 +589,7 @@ function OnTrade(trade)
 			end;
 			
 			-- Удаляем стопы (определенное кол-во)
-			_QuikUtilityLogWrite("report", "Trade", {"#"..trade_num, sec_code, comment, price, tostring(arg_1)..qty, _QuikGetRubPricePointsByIndex(sec_code,1)});
+			_QuikUtilityLogWrite("report", "Trade", {"#"..trans_id, sec_code, comment, price, tostring(arg_1)..qty, _QuikGetRubPricePointsByIndex(sec_code,1)});
 			_QuikUtilityLogWrite("report", "System", {"-", sec_code, "KillStopOrders ("..qty..")"});
 			KILL_STOP_ORDERS_BY_COUNT(sec_code, qty);
 			
@@ -603,9 +606,9 @@ function OnTrade(trade)
 			
 			-- Удаляем стопы (определенное кол-во)
 			-- KILL_ALL_STOP_ORDERS(sec_code);
-			_QuikUtilityLogWrite("report", "Trade", {"#"..trade_num, sec_code, comment, price, tostring(arg_1)..qty, _QuikGetRubPricePointsByIndex(sec_code,1)});
+			_QuikUtilityLogWrite("report", "Trade", {"#"..trans_id, sec_code, comment, price, tostring(arg_1)..qty, _QuikGetRubPricePointsByIndex(sec_code,1)});
 			_QuikUtilityLogWrite("report", "System", {"-", sec_code, "KillStopOrders ("..qty..")"});
-			KILL_STOP_ORDERS_BY_COUNT(sec_code,qty);
+			KILL_STOP_ORDERS_BY_COUNT(sec_code, qty);
 			
 		end;
 		
@@ -616,7 +619,7 @@ function OnTrade(trade)
 			else
 				arg_1 = "+";
 			end;
-			_QuikUtilityLogWrite("report", "Trade", {"#"..trade_num, sec_code, comment, price, tostring(arg_1)..qty, _QuikGetRubPricePointsByIndex(sec_code,1)});
+			_QuikUtilityLogWrite("report", "Trade", {"#"..trans_id, sec_code, comment, price, tostring(arg_1)..qty, _QuikGetRubPricePointsByIndex(sec_code,1)});
 		end;
 		
 	end;

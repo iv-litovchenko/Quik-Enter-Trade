@@ -438,7 +438,7 @@ function KILL_STOP_ORDERS_BY_COUNT(code, q)
 			if getItem("stop_orders",i).stop_order_type == 9 then -- Флаг "9" -- тэйк-профит и стоп-лимит  
 				if bit.test(getItem("stop_orders",i).flags,0) then -- бит 0 (0x1) Заявка активна, иначе не активна  
 					
-					if KILL_STOP_ORDER(code,getItem("stop_orders",i).order_num, "500"..string.sub(getItem("stop_orders",i).order_num, 5)..i) then
+					if KILL_STOP_ORDER(code,getItem("stop_orders",i).order_num, "500"..math.ceil(os.date("%S%M%H%d")/10000)..i) then
 						-- message("СНЯТО++" .. getItem("stop_orders",i).order_num);
 						counter = counter + 1;
 					end;

@@ -2,8 +2,8 @@
 -- НАСТРОЙКИ (алерты):
 ----------------------------------------------------------------------------------------------------------------------
 
--- Пересечение цены с индикатором SAR
-function MyAlertSar(indicator_ind, price_ind)
+-- Пересечение цены с индикатором NRTR
+function MyAlertIndicator(indicator_ind, price_ind)
 
 	local identifExists1 = _QuikChartExistsByIndex(indicator_ind, 1);
 	local identifExists2 = _QuikChartExistsByIndex(price_ind, 1);
@@ -31,9 +31,8 @@ function MyAlertSar(indicator_ind, price_ind)
 	
 end;
 
--- MyAlertSar("RTS_SAR", "RTS_PRICE");
--- MyAlertSar("GAZR_SAR", "GAZR_PRICE");
--- MyAlertSar("SBRF_SAR", "SBRF_PRICE");
+-- MyAlertIndicator("RI_SAR", "RI_PRICE");
+-- MyAlertIndicator("Si_SAR", "Si_PRICE");
 
 -- Функция для сообщение о цене
 function MyAlert(ind, price)
@@ -45,21 +44,19 @@ function MyAlert(ind, price)
 		
 		if tonumber(val_price) > price then
 			_QuikUtilityRegAlert(ind_comment, "Цена > "..price); -- Рег. алерт в таблице окошка
-			_QuikUtilityRegLabel(ind_comment, "Цена > "..price); -- Добавляем метку на график
+			-- _QuikUtilityRegLabel(ind_comment, "Цена > "..price); -- Добавляем метку на график
 		
 		elseif tonumber(val_price) < price then
 			_QuikUtilityRegAlert(ind_comment, "Цена < "..price); -- Рег. алерт в таблице окошка
-			_QuikUtilityRegLabel(ind_comment, "Цена < "..price); -- Добавляем метку на график
+			-- _QuikUtilityRegLabel(ind_comment, "Цена < "..price); -- Добавляем метку на график
 		
 		else
 			_QuikUtilityRegAlert(ind_comment, "Цена = "..price); -- Рег. алерт в таблице окошка
-			_QuikUtilityRegLabel(ind_comment, "Цена = "..price); -- Добавляем метку на график	
+			-- _QuikUtilityRegLabel(ind_comment, "Цена = "..price); -- Добавляем метку на график	
 		end;
 		
 	end;
 	
 end; 
 
-MyAlert("P1-1", 12300);
-MyAlert("P1-1", 12250);
-MyAlert("P1-1", 12200);
+-- MyAlert("P1-1", 122361);
