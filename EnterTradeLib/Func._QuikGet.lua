@@ -196,47 +196,33 @@ end;
 -- X - ноябрь
 -- Z - декабрь
 
-function _QuikGetNameByListTickets(code, deadline)
-	local year = tonumber(os.date("%Y", os.time()));
-	local day = tonumber(os.date("%d", os.time()));
-	local month = tonumber(os.date("%m", os.time()));
-	local monthCode = '';
-	year = string.sub(year,4);
+function _QuikGetNameByListTickets(code)
+	-- message("code:"..code..":"..monthCode .. "::" ..year);
+	-- return code..monthCode..year;
 	
-	if deadline == 1 then
-		if month == 12 then monthCode='F'; end;
-		if month == 1 then monthCode='G'; end;
-		if month == 2 then monthCode='H'; end;
-		if month == 3 then monthCode='J'; end;
-		if month == 4 then monthCode='K'; end;
-		if month == 5 then monthCode='M'; end;
-		if month == 6 then monthCode='N'; end;
-		if month == 7 then monthCode='Q'; end;
-		if month == 8 then monthCode='U'; end;
-		if month == 9 then monthCode='V'; end;
-		if month == 10 then monthCode='X'; end;
-		if month == 11 then monthCode='Z'; end;
-	else
-		if month == 12 and day > 16 then monthCode='H'; end;
-		if month == 2 then monthCode='H'; end;
-		if month == 3 and day < 16 then monthCode='H'; end;
-		
-		if month == 3 and day > 16 then monthCode='M'; end;
-		if month == 5 then monthCode='M'; end;
-		if month == 6 and day < 16 then monthCode='M'; end;
-		
-		if month == 6 and day > 16 then monthCode='U'; end;
-		if month == 8 then monthCode='U'; end;
-		if month == 9 and day < 16 then monthCode='U'; end;
-		
-		if month == 9 and day > 16 then monthCode='Z'; end;
-		if month == 11 then monthCode='Z'; end;
-		if month == 12 and day < 16 then monthCode='Z'; end;
+	local findCode = _QuikGetNameByListTickets_FindSecCode(code, 3);
+	if findCode then
+		return findCode;
 	end;
 	
-	-- message("code:"..code..":"..monthCode .. "::" ..year);
-	return code..monthCode..year;
+	return code;
 end;
+
+	function _QuikGetNameByListTickets_FindSecCode(pref, dtmd) -- Определяем инструмент для торговли
+		if dtmd == nil or dtmd < 1 then
+			dtmd = 3;
+		end;
+		local sec_list = getClassSecurities (TRANS_CLASS_CODE_FUT); -- Получаем список инструментов
+		for test_sec_code in string.gmatch(sec_list, "("..pref.."[^%s,]+)") do -- Перебираем список 
+			local param = getParamEx(TRANS_CLASS_CODE_FUT, test_sec_code, "DAYS_TO_MAT_DATE");
+			if (param.result == "1") and (param.param_image ~= "" ) and (param.param_type ~= "0") then -- Параметр получен корректно? 
+				if (tonumber(param.param_value) >= dtmd) then -- Проверяем дни до экспирации
+					return test_sec_code;
+				end; 
+			end;
+		end;
+		return code;
+	end;
 
 -- QUIK Получить: название инструмента
 -- Через "_QuikGetParamExByIndex" не получается
@@ -448,4 +434,10 @@ function _QuikChartExistsByIndex(code, regAlert)
 	else
 		return true;
 	end;
+end;
+
+-- QUIK Выполнить http - запрос
+function _QuikGetHttp()
+	content, status, header = socket.http.request(ROBOT_HTTP_URL);
+	return content;
 end;

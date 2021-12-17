@@ -3,7 +3,7 @@
 -----------------------------------------------------
 
 -- функция запуска проигрывания файла
-function _QuikUtilityRegAlert(name, val_comment)
+function _QuikUtilityRegAlert(name, val_comment, disabled_sound)
 	if RegAlert[name] == val_comment then
 		return 0;
 	else
@@ -18,7 +18,7 @@ function _QuikUtilityRegAlert(name, val_comment)
 
 			t = CreateWindow(t_id2);-- Создает таблицу
 			SetWindowCaption(t_id2, "Enter trade (события)"); -- Устанавливает заголовок	
-			SetWindowPos(t_id2, 200, 200, 252, 532); -- Задает положение и размеры окна таблицы
+			SetWindowPos(t_id2, 252, 0,325, 532); -- Задает положение и размеры окна таблицы
 		end;
 		
 		InsertRow(t_id2, RegAlertCounter);
@@ -29,7 +29,9 @@ function _QuikUtilityRegAlert(name, val_comment)
 		
 		-- Запускаем музыку!
 		local path_music = "Sound-5";
-		_QuikUtilitySoundFilePlay(path_music);
+		if disabled_sound ~= 1 then
+			_QuikUtilitySoundFilePlay(path_music);
+		end;
 		
 		return 1;
 	end;

@@ -266,7 +266,7 @@ function NEW_STOP_ORDER(code, operation, price, q, comment, id, stop, stop_k_tak
 		-- ["COMMENT"]    		= "Тейк-профит и стоп-лосс фьючерсов скриптом",
 		["OFFSET_UNITS"]        = "PRICE_UNITS",
 		["SPREAD_UNITS"]        = "PRICE_UNITS",
-		["EXPIRY_DATE"]			= "GTC", -- на учебном серве только стоп-заявки с истечением сегодня, потом поменять на GTC
+		["EXPIRY_DATE"]			= __FLAG__SWITCH__SETTINGS__SL_EXPIRY_DATE__, -- на учебном серве только стоп-заявки с истечением сегодня, потом поменять на GTC
 		["OPERATION"]  			= operation, -- покупка (BUY "B" || SELL "S")
 		["IS_ACTIVE_IN_TIME"]	= "NO"
 	};
@@ -324,8 +324,13 @@ function NEW_STOP_ORDER(code, operation, price, q, comment, id, stop, stop_k_tak
 	-- 	..TransactionArray["PRICE"].."\n"
 	-- );
 	
-	-- ЕСЛИ функция вернула строку диагностики ошибки, ТО значит транзакция не прошла
-	return CustomSendTransaction(TransactionArray, id, "ZAREGISTRIROVANO.NEW_STOP_ORDER", "ISPOLNENO.NEW_STOP_ORDER");
+	-- message(":::"..stop);
+	if tonumber(stop) > 0 then
+	
+		-- ЕСЛИ функция вернула строку диагностики ошибки, ТО значит транзакция не прошла
+		return CustomSendTransaction(TransactionArray, id, "ZAREGISTRIROVANO.NEW_STOP_ORDER", "ISPOLNENO.NEW_STOP_ORDER");
+	
+	end;
 	
 end;
 

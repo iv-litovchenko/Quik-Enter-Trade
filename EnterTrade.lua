@@ -1,10 +1,10 @@
 ------------------------------------------------------------------------------
 -- Торговый привод Enter Trade для терминала Quik (для срочного рынка FORTS)
 -- с открытым исходным кодом, с автоматическим выставлением StopLoss&TakeProfit
--- Иван Литовченко 2020
+-- Иван Литовченко 2020, 2021
 
 -- Любые пожелания и замечания приветствуются:
--- http://iv-litovchenko.ru/quik-enter-trade
+-- http://ivan-litovchenko.ru/quik-enter-trade
 -- https://vk.com/quik.enter.trade
 -- Email: iv-litovchenko@mail.ru
 
@@ -53,7 +53,15 @@
 
 -- Включения
 -- debug = nil;
+
+if string.find(package.path, getScriptPath()..'\\EnterTradeLib\\Socket\\?.lua') == nil then
+	package.path=package.path..';'..getScriptPath()..'\\EnterTradeLib\\Socket\\?.lua;'
+	package.cpath=package.cpath..';'..getScriptPath()..'\\EnterTradeLib\\Socket\\?.dll;'
+end;
+
 w32 = require("w32");
+http = require("socket.http");
+
 dofile(getScriptPath().."\\EnterTradeSettings\\Settings.All.lua"); -- файл настроек
 dofile(getScriptPath().."\\EnterTradeLib\\Func._QuikGet.lua");
 dofile(getScriptPath().."\\EnterTradeLib\\Func._QuikTable.lua");
@@ -71,7 +79,7 @@ TRANS_SECNAME					= ""; -- Название ФЬЮЧЕРСА -- VTBR-6.20/SBRF-6.20|RTS-6.20
 
 -- Переменные системы
 IsRun = true; -- Флаг поддержания работы скрипта
-ScriptVersion 					= "1.3"; 
+ScriptVersion 					= "1.4"; 
 CheckLastNumOnTrade				= 0;
 CheckLastNumOnOrderAct			= 0;
 CheckLastNumOnOrderNotAct		= 0;
@@ -80,6 +88,8 @@ RegAlert 						= {}; -- События
 RegLabel 						= {}; -- События, метки на графике
 RegAlertCounter 				= 1; -- События (счетчик)
 RegLabelCounter 				= 1; -- События, метки на графике (счетчик)
+TimeSleepCounterHttp			= 0; -- Время сна перед повторной отправкой http-запроса
+TimeIntervalHttp				= ROBOT_TIMEOUT; -- Время интервала в секундах перед повторным запросом
 
 -- Переменные для сохранения значений переключателей стрелок "<" и ">"
 RM_COLOR						= 255; -- Мерцание риск-менеджера
@@ -119,6 +129,10 @@ COUNTER_CELL 					= 1; -- Добавленные ячейки
 CALLBACK_CELL 					= {}; -- Обратные вызовы для нажатия колонок
 FILE_SETTINGS_LIST_RM_KEY 		= {}; -- Ключи риск-менеджера
 
+-- Настройки (чеки-переключатели)
+__FLAG__RADIO__SETTINGS__ROBOT__ = 0; -- по умолчанию торговля для роботов выключена
+__FLAG__SWITCH__SETTINGS__SL_EXPIRY_DATE__ = "GTC"; -- по умолчанию до истечения
+
 function OnInit()
 
 	message("Enter Trade "..ScriptVersion.." Start, QUIK "..getInfoParam('VERSION')..".");
@@ -131,7 +145,7 @@ function OnInit()
 	
 	--else
 		-- Устанавливаем название инструмента
-		TRANS_SECCODE = _QuikGetNameByListTickets(FILE_SETTINGS_LIST_TICKETS[VAL_TIKET][1],FILE_SETTINGS_LIST_TICKETS[VAL_TIKET][3]);
+		TRANS_SECCODE = _QuikGetNameByListTickets(FILE_SETTINGS_LIST_TICKETS[VAL_TIKET][1]);
 		TRANS_SECNAME = _QuikGetShortNameByIndex(TRANS_SECCODE);
 		VAL_SL = _QuikUtilityStrRound2(FILE_SETTINGS_LIST_TICKETS[VAL_TIKET][2]);
 		
@@ -185,13 +199,15 @@ function main()
 			end;
 			
 			-- Robot
-			local callResult, result = pcall(dofile, getScriptPath().."\\EnterTradeSettings\\Settings.Callback.Robot.lua")
-			if callResult then
-				-- все в порядке, result это то, что вернула функция dofile
-			else
-				-- result это сообщение об ошибке
-				message(tostring(result));
-				sleep(5000);
+			if __FLAG__RADIO__SETTINGS__ROBOT__ == 1 then
+				local callResult, result = pcall(dofile, getScriptPath().."\\EnterTradeSettings\\Settings.Callback.Robot.lua")
+				if callResult then
+					-- все в порядке, result это то, что вернула функция dofile
+				else
+					-- result это сообщение об ошибке
+					message(tostring(result));
+					sleep(5000);
+				end;
 			end;
 			
 		end;
@@ -225,6 +241,13 @@ function main()
 		if IsWindowClosed(t_id) then --закрываем скрипт, когда окно закрыто
 			OnStop();
 		end;
+		
+		if TimeSleepCounterHttp >= 1000*TimeIntervalHttp then
+			TimeSleepCounterHttp = 0;
+			ROBOT_DO_FLAG = 1;
+		end;
+		
+		TimeSleepCounterHttp = TimeSleepCounterHttp+100;
 		sleep(100);
 	end;
 end;
@@ -270,7 +293,7 @@ function CreateTable()
 
 	t = CreateWindow(t_id);-- Создает таблицу
 	SetWindowCaption(t_id, "Enter trade "..ScriptVersion.." (Quik 7,Quik 8)"); -- Устанавливает заголовок	
-	SetWindowPos(t_id, 100, 100, 252, 532); -- Задает положение и размеры окна таблицы
+	SetWindowPos(t_id, 0, 0, 252, 532); -- Задает положение и размеры окна таблицы
 	
 	-- Назначает таблице t_id функцию обработки событий "CallbackTable"
 	SetTableNotificationCallback(t_id, function(t_id, msg, par1, par2)
@@ -334,9 +357,11 @@ function UpdateTable()
 		
 		COUNTER_CELL = COUNTER_CELL + 1;
 		SetCellBlockSettings(); 
+		SetCellButtonRobotFlag();
 		SetCellButtonCloseAuto(); 
 		SetCellButtonSlZero(); -- Перенос в БУ
 		SetCellButtonSlT(); -- Трейлинг Стоп-лосс
+		SetCellButtonSlExpiration(); -- Срок действия Стоп-лосс
 		
 		COUNTER_CELL = COUNTER_CELL + 1;
 		SetCellBlockRiskManagement(); -- Блок депозит (динамика)

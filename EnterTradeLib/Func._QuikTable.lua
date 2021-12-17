@@ -3,7 +3,7 @@
 
 function SetCellCode(value1, value2, value3)
 	SetCell(t_id, COUNTER_CELL, 0, "  <"); 
-	SetCell(t_id, COUNTER_CELL, 1,  tostring(value1) .. ". " .. tostring(value3) .. " (" .. tostring(value2) .. ") [?]");
+	SetCell(t_id, COUNTER_CELL, 1,  tostring(value1) .. ". " .. tostring(value3) .. " (" .. tostring(value2) .. ")");
 	SetCell(t_id, COUNTER_CELL, 2, "  >"); 
 	SetCell(t_id, COUNTER_CELL, 3, "_QuikGetRubPricePointsByIndex(code,count)");
 	SetColor(t_id, COUNTER_CELL, 0, RGB(200,200,200), RGB(0,0,0), RGB(200,200,200), RGB(0,0,0));
@@ -33,7 +33,7 @@ end;
 		-- 	VAL_TIKET = old_tiket; 
 		-- end;
 			
-		TRANS_SECCODE = _QuikGetNameByListTickets(FILE_SETTINGS_LIST_TICKETS[VAL_TIKET][1],FILE_SETTINGS_LIST_TICKETS[VAL_TIKET][3]);
+		TRANS_SECCODE = _QuikGetNameByListTickets(FILE_SETTINGS_LIST_TICKETS[VAL_TIKET][1]);
 		TRANS_SECNAME = _QuikGetShortNameByIndex(TRANS_SECCODE);
 		VAL_Q = 0;
 		VAL_SL = _QuikUtilityStrRound2(FILE_SETTINGS_LIST_TICKETS[VAL_TIKET][2]);
@@ -61,7 +61,7 @@ end;
 		-- 	VAL_TIKET = old_tiket; 
 		-- end;
 			
-		TRANS_SECCODE = _QuikGetNameByListTickets(FILE_SETTINGS_LIST_TICKETS[VAL_TIKET][1],FILE_SETTINGS_LIST_TICKETS[VAL_TIKET][3]);
+		TRANS_SECCODE = _QuikGetNameByListTickets(FILE_SETTINGS_LIST_TICKETS[VAL_TIKET][1]);
 		TRANS_SECNAME = _QuikGetShortNameByIndex(TRANS_SECCODE);
 		VAL_Q = 0;
 		VAL_SL = _QuikUtilityStrRound2(FILE_SETTINGS_LIST_TICKETS[VAL_TIKET][2]);
@@ -130,7 +130,7 @@ end;
 
 function SetCellTp(value1, value2)
 	SetCell(t_id, COUNTER_CELL, 0, "  <"); 
-	SetCell(t_id, COUNTER_CELL, 1, "TP:"..tostring("1к"..value2) .. " = "..(value1*value2));
+	SetCell(t_id, COUNTER_CELL, 1, "TP: "..tostring("1к"..value2) .. " = "..(value1*value2));
 	SetCell(t_id, COUNTER_CELL, 2, "  >"); 
 	SetCell(t_id, COUNTER_CELL, 3, "");
 	SetColor(t_id, COUNTER_CELL, 0, RGB(200,200,200), RGB(0,0,0), RGB(200,200,200), RGB(0,0,0));
@@ -163,11 +163,15 @@ end;
 
 function SetCellSl(value1, value2)
 	SetCell(t_id, COUNTER_CELL, 0, "  <"); 
-	if value2 > 0 then
-		SetCell(t_id, COUNTER_CELL, 1, "SL:"..tostring(value1).." ("..tostring(_QuikUtilityStrRound2(value2,2)).."%)"); 
+	
+	if tonumber(value1) == 0 then
+		SetCell(t_id, COUNTER_CELL, 1, "SL: "..tostring(value1).." (без стопа)");
+	elseif value2 > 0 then
+		SetCell(t_id, COUNTER_CELL, 1, "SL: "..tostring(value1).." ("..tostring(_QuikUtilityStrRound2(value2,2)).."%)"); 
 	else
-		SetCell(t_id, COUNTER_CELL, 1, "SL:"..tostring(value1)); 
+		SetCell(t_id, COUNTER_CELL, 1, "SL: "..tostring(value1)); 
 	end;
+	
 	SetCell(t_id, COUNTER_CELL, 2, "  >"); 
 	SetCell(t_id, COUNTER_CELL, 3, "");
 	SetColor(t_id, COUNTER_CELL, 0, RGB(200,200,200), RGB(0,0,0), RGB(200,200,200), RGB(0,0,0));
@@ -195,6 +199,8 @@ end;
 		-- Если > 0,1% от стоимости инструмента то считаем!
 		if VAL_SL-min_step > (_QuikGetParamExByIndex(TRANS_SECCODE,'LAST')/1000)*0.5 then -- было 1.2
 			VAL_SL = VAL_SL-min_step;
+		else
+			VAL_SL = 0;
 		end;
 		VAL_SL = _QuikUtilityStrRound2(VAL_SL);
 	end;
@@ -216,9 +222,9 @@ function SetCellQ(value_q)
 	local max_q = _QuikGetMaxQtyByIndex(TRANS_SECCODE);
 	if value_q > 0 and max_q > 0 then
 		local v = _QuikUtilityStrRound2((value_q/max_q)*100,2);
-		SetCell(t_id, COUNTER_CELL, 1, "Q:"..tostring(value_q).."/"..tostring(max_q).." ("..v.."%)"); 
+		SetCell(t_id, COUNTER_CELL, 1, "Q: "..tostring(value_q).."/"..tostring(max_q).." ("..v.."%)"); 
 	else 
-		SetCell(t_id, COUNTER_CELL, 1, "Q:"..tostring(value_q).."/"..tostring(max_q)); 
+		SetCell(t_id, COUNTER_CELL, 1, "Q: "..tostring(value_q).."/"..tostring(max_q)); 
 	end;
 	SetCell(t_id, COUNTER_CELL, 3, "_QuikGetMaxQtyByIndex(code)");
 	SetColor(t_id, COUNTER_CELL, 0, RGB(200,200,200), RGB(0,0,0), RGB(200,200,200), RGB(0,0,0));
@@ -260,7 +266,7 @@ end;
 	end;
 	
 function SetCellCalc()
-	SetCell(t_id, COUNTER_CELL, 1, "     Калькулятор  "); 
+	SetCell(t_id, COUNTER_CELL, 1, "      Калькулятор  "); 
 	SetColor(t_id, COUNTER_CELL, 1, RGB(59,59,59), RGB(255,255,255), RGB(59,59,59), RGB(255,255,255));
 	
 	CALLBACK_CELL[COUNTER_CELL.."_1"] = "CallbackCellCalc";
@@ -315,7 +321,7 @@ function SetCellInfo()
 	
 	-- Если инструмент не торгуется, выбран например "RIM5"
 	if tonumber(_QuikGetParamExByIndex(TRANS_SECCODE, "STATUS")) == 0 then 
-		label = "   Не торгуется!  ";
+		label = "      Не торгуется!  ";
 	
 	-- Выводит сообщение о текущем состоянии
 	-- elseif (temp_H >= 23 and temp_M >= 50) or (temp_H < 10 and temp_M < 59) then
@@ -330,7 +336,7 @@ function SetCellInfo()
 	
 	-- Дневная сессия
 	elseif temp_H >= 10 and temp_H <= 13 then
-		label = " Дневная сессия ";
+		label = "   Дневная сессия ";
 		
 		-- Если скоро клиринг №1!
 		if temp_H == 13 and temp_M >= 45 then
@@ -344,7 +350,7 @@ function SetCellInfo()
 		
 	-- Вечерняя сессия
 	elseif temp_H >= 14 and temp_H <= 18 then
-		label = "Основная сессия";
+		label = "  Основная сессия";
 		
 		-- Если скоро клиринг №2!
 		if temp_H == 18 and temp_M >= 30 then
@@ -358,7 +364,7 @@ function SetCellInfo()
 	
 	-- Ночная сессия
 	elseif temp_H >= 19 and temp_H <= 23 or (temp_H == 23 and temp_M < 50) then
-		label = "  Ночная сессия ";
+		label = "    Ночная сессия ";
 		
 		-- Если скоро закрытие!
 		if temp_H == 23 and temp_M >= 30 then
@@ -372,7 +378,7 @@ function SetCellInfo()
 		
 	-- Рынок закрыт
 	elseif temp_H < 10 then
-		label = "  Рынок закрыт ";
+		label = "     Рынок закрыт ";
 		_QuikUtilityRegAlert("STATUS", "Рынок закрыт");
 	
 	-- 45 секунда
@@ -385,14 +391,14 @@ function SetCellInfo()
 		
 	end;
 	
+	local label_prefix = os.date("%S", os.time()); -- %H:%M:
+	SetCell(t_id, COUNTER_CELL, 0, " " .. tostring(_QuikGetParamExByIndex(TRANS_SECCODE, "DAYS_TO_MAT_DATE"))); 
 	SetCell(t_id, COUNTER_CELL, 1, label); 
+	SetCell(t_id, COUNTER_CELL, 2, " " .. label_prefix); 
 	SetColor(t_id, COUNTER_CELL, 0, RGB(59,59,59), RGB(255,255,255), RGB(59,59,59), RGB(255,255,255));
 	SetColor(t_id, COUNTER_CELL, 1, RGB(59,59,59), RGB(255,255,255), RGB(59,59,59), RGB(255,255,255));
 	SetColor(t_id, COUNTER_CELL, 2, RGB(59,59,59), RGB(255,255,255), RGB(59,59,59), RGB(255,255,255));
 	CALLBACK_CELL[COUNTER_CELL.."_1"] = "CallbackCellInfo";
-	
-	SetCell(t_id, COUNTER_CELL, 0, ""); 
-	SetColor(t_id, COUNTER_CELL, 1, RGB(59,59,59), RGB(255,255,255), RGB(59,59,59), RGB(255,255,255));
 	CALLBACK_CELL[COUNTER_CELL.."_0"] = "CallbackCellTest";
 	
 	COUNTER_CELL = COUNTER_CELL + 1;
@@ -836,28 +842,76 @@ end;
 	end;
 
 function SetCellButtonSlZero()
-	SetCell(t_id, COUNTER_CELL, 1, "  SL БУ (OFF)"); 
+	SetCell(t_id, COUNTER_CELL, 1, "  SL БУ (off)");
+	SetCell(t_id, COUNTER_CELL, 3, "  Todo"); 
 	
 	CALLBACK_CELL[COUNTER_CELL.."_1"] = "CallbackCellButtonSlZero";
 	COUNTER_CELL = COUNTER_CELL + 1;
 end;
 
 function SetCellButtonSlT()
-	SetCell(t_id, COUNTER_CELL, 1, "  SL Трал (OFF)");
+	SetCell(t_id, COUNTER_CELL, 1, "  SL Трал (off)");
+	SetCell(t_id, COUNTER_CELL, 3, "  Todo"); 
 	
 	CALLBACK_CELL[COUNTER_CELL.."_1"] = "CallbackCellButtonSlT";
 	COUNTER_CELL = COUNTER_CELL + 1;
 end;
+
+function SetCellButtonSlExpiration()
+	if __FLAG__SWITCH__SETTINGS__SL_EXPIRY_DATE__ == "GTC" then
+		SetCell(t_id, COUNTER_CELL, 1, "  SL Истк. (до отм.)");
+	-- elseif tonumber(__FLAG__SWITCH__SETTINGS__SL_EXPIRY_DATE__) == 10 then 
+	--	SetCell(t_id, COUNTER_CELL, 1, "  SL Истк. (10 дней)");	
+	else 
+		SetCell(t_id, COUNTER_CELL, 1, "  SL Истк. (сегодня)"); 
+	end;
+	SetCell(t_id, COUNTER_CELL, 3, "  Срок действия стоп-заявки (" .. tostring(__FLAG__SWITCH__SETTINGS__SL_EXPIRY_DATE__) .. ")"); 
+	
+	CALLBACK_CELL[COUNTER_CELL.."_1"] = "CallbackCellSlExpiration";
+	COUNTER_CELL = COUNTER_CELL + 1;
+end;
+
+	-- ЕСЛИ нажата кнопка "Дата истечения"
+	function CallbackCellSlExpiration()
+		if __FLAG__SWITCH__SETTINGS__SL_EXPIRY_DATE__ == "GTC" then
+			__FLAG__SWITCH__SETTINGS__SL_EXPIRY_DATE__ = "TODAY";
+		-- elseif __FLAG__SWITCH__SETTINGS__SL_EXPIRY_DATE__ == "TODAY" then
+		--	__FLAG__SWITCH__SETTINGS__SL_EXPIRY_DATE__ = 10;
+		else 
+			__FLAG__SWITCH__SETTINGS__SL_EXPIRY_DATE__ = "GTC";
+		end;
+	end;
+				
+function SetCellButtonRobotFlag()
+	if __FLAG__RADIO__SETTINGS__ROBOT__ == 1 then
+		SetCell(t_id, COUNTER_CELL, 1, "  Роботы (on)"); 
+	else 
+		SetCell(t_id, COUNTER_CELL, 1, "  Роботы (off)"); 
+	end;
+	
+	CALLBACK_CELL[COUNTER_CELL.."_1"] = "CallbackCellButtonRobotFlag";
+	COUNTER_CELL = COUNTER_CELL + 1;
+end;
+
+	-- ЕСЛИ нажата кнопка "Роботы"
+	function CallbackCellButtonRobotFlag()
+		if __FLAG__RADIO__SETTINGS__ROBOT__ == 1 then
+			__FLAG__RADIO__SETTINGS__ROBOT__ = 0;
+		else 
+			__FLAG__RADIO__SETTINGS__ROBOT__ = 1;
+		end;
+	end;
 				
 function SetCellButtonCloseAuto()
-	SetCell(t_id, COUNTER_CELL, 1, "  Автозакр. (OFF)"); 
+	SetCell(t_id, COUNTER_CELL, 1, "  Автозакр. (off)");
+	SetCell(t_id, COUNTER_CELL, 3, "  Todo"); 
 	
 	CALLBACK_CELL[COUNTER_CELL.."_1"] = "CallbackCellButtonCloseAuto";
 	COUNTER_CELL = COUNTER_CELL + 1;
 end;
 
 function SetCellBlockSettings()
-	SetCell(t_id, COUNTER_CELL, 1, "     Настройки [?]");
+	SetCell(t_id, COUNTER_CELL, 1, "       Настройки");
 	SetColor(t_id, COUNTER_CELL, 1, RGB(200,200,200), RGB(0,0,0), RGB(200,200,200), RGB(0,0,0));
 	
 	COUNTER_CELL = COUNTER_CELL + 1;
@@ -923,7 +977,7 @@ end;
 
 -- Риск-менеджмент
 function SetCellBlockRiskManagement(code)
-	SetCell(t_id, COUNTER_CELL, 1, "  Риск-менеджм [?]");
+	SetCell(t_id, COUNTER_CELL, 1, "    Риск-менеджм");
 	SetColor(t_id, COUNTER_CELL, 1, RGB(200,200,200), RGB(0,0,0), RGB(200,200,200), RGB(0,0,0));
 	
 	CALLBACK_CELL[COUNTER_CELL.."_1"] = "CallbackCellBlockRiskManagement";
@@ -950,7 +1004,7 @@ function SetCellBlockRiskManagementElement(name, cell_name, cell_help, cell_eval
 	COUNTER_CELL = COUNTER_CELL + 1;
 end;
 
-	-- ЕСЛИ нажата плашка "Риск-менеджер [?]"
+	-- ЕСЛИ нажата плашка "Риск-менеджер"
 	function CallbackCellBlockRiskManagement()
 		_QuikUtilitySoundFilePlay("Sound-2", 0);
 			
@@ -978,7 +1032,7 @@ end;
 -- Блок депозит
 function SetCellBlockDepo()
 	
-	SetCell(t_id, COUNTER_CELL, 1, "        Депозит [?]");
+	SetCell(t_id, COUNTER_CELL, 1, "          Депозит");
 	SetColor(t_id, COUNTER_CELL, 1, RGB(200,200,200), RGB(0,0,0), RGB(200,200,200), RGB(0,0,0));
 	
 	CALLBACK_CELL[COUNTER_CELL.."_1"] = "CallbackCellBlockDepo";
@@ -1029,7 +1083,7 @@ function SetCellBlockDepo()
 	COUNTER_CELL = COUNTER_CELL + 1;
 end;
 
-	-- ЕСЛИ нажата кнопка по "Депозит [?]" - выводим информационное сообщение
+	-- ЕСЛИ нажата кнопка по "Депозит" - выводим информационное сообщение
 	function CallbackCellBlockDepo()
 		_QuikUtilitySoundFilePlay("Sound-2", 0);
 			
