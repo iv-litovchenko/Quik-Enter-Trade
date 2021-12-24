@@ -55,4 +55,4 @@ Quik Enter Trade - торговый привод для терминала Quik 
 4. Добавлена поддержка совершения операции купли/продажи без стоп-лосса (SL: 0)
 
 [![Watch the video](https://img.youtube.com/vi/zjRxj_CpJk8/maxresdefault.jpg)](https://youtu.be/zjRxj_CpJk8)
-[Видео-презентация на YouTube](https://youtu.be/zjRxj_CpJk8)
+[Обзор версии 1.4 на YouTube](https://youtu.be/zjRxj_CpJk8)
