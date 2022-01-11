@@ -59,8 +59,10 @@ Quik Enter Trade - торговый привод для терминала Quik 
 
 ## Дополнения в версии 1.5 (beta)
 
+### FORTS - журнал сделок (QET 1.5 - часть 1)
 [![Watch the video](https://img.youtube.com/vi/7r-0-aJ78SQ/maxresdefault.jpg)](https://youtu.be/7r-0-aJ78SQ)
-[FORTS - журнал сделок (QET 1.5 - часть 1)](https://youtu.be/7r-0-aJ78SQ)
+[YouTube: FORTS - журнал сделок (QET 1.5 - часть 1)](https://youtu.be/7r-0-aJ78SQ)
 
+### Получение сигналов по HTTP на примере TradingView (QET 1.5 - часть 2)
 [![Watch the video](https://img.youtube.com/vi/Ah276UCEi0I/maxresdefault.jpg)](https://youtu.be/Ah276UCEi0I)
-[Получение сигналов по HTTP на примере TradingView (QET 1.5 - часть 2)](https://youtu.be/Ah276UCEi0I)
+[YouTube: Получение сигналов по HTTP на примере TradingView (QET 1.5 - часть 2)](https://youtu.be/Ah276UCEi0I)
